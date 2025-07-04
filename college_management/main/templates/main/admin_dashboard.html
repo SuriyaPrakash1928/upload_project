@@ -1,0 +1,236 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .navbar {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-clickable {
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .card-clickable:hover {
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .badge {
+      font-size: 0.9rem;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .card-summary {
+      border-left: 5px solid #007bff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 🔹 Updated Navbar with Icon Dropdown -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4">
+    <a class="navbar-brand fw-bold" href="#">Admin Dashboard</a>
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle text-white fs-4" href="#" role="button" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          <i class="bi bi-person-circle"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item text-danger" href="{% url 'login' %}">Logout</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+
+  <div class="container mt-4">
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card card-clickable card-summary text-center p-3" onclick="showSection('students')">
+          <div class="card-body">
+            <h5 class="card-title">Total Students</h5>
+            <h3>{{ students|length }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card card-clickable card-summary text-center p-3" onclick="showSection('teachers')">
+          <div class="card-body">
+            <h5 class="card-title">Total Teachers</h5>
+            <h3>{{ teachers|length }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Button -->
+    <div class="text-end mb-3">
+      <button class="btn btn-info" onclick="showSection('analytics')">📊 Show Analytics</button>
+    </div>
+
+    <!-- Students Section -->
+    <div id="students" class="section active">
+      <h4 class="mt-3">Student List</h4>
+      <table class="table table-hover table-bordered align-middle mt-3">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Department</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.contact }}</td>
+            <td>{{ student.department }}</td>
+            <td class="text-center">
+              <a href="{% url 'edit_student' student.id %}" class="btn btn-sm btn-primary">Edit</a>
+              <a href="{% url 'delete_student' student.id %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-muted">No students found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Teachers Section -->
+    <div id="teachers" class="section">
+      <h4 class="mt-3">Teacher List</h4>
+      <table class="table table-hover table-bordered align-middle mt-3">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Department</th>
+            <th>Skills</th>
+            <th>Status</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for teacher in teachers %}
+          <tr>
+            <td>{{ teacher.name }}</td>
+            <td>{{ teacher.user.email }}</td>
+            <td>{{ teacher.contact }}</td>
+            <td>{{ teacher.department.name }}</td>
+            <td>{{ teacher.skills }}</td>
+            <td>
+              {% if teacher.approved %}
+              <span class="badge bg-success">Approved</span>
+              {% else %}
+              <span class="badge bg-warning text-dark">Pending</span>
+              {% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-primary btn-sm">Edit</a>
+              <a href="{% url 'delete_teacher' teacher.id %}" class="btn btn-danger btn-sm">Delete</a>
+              {% if not teacher.approved %}
+              <a href="{% url 'approve_teacher' teacher.id %}" class="btn btn-success btn-sm">Approve</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Analytics Section -->
+    <div id="analytics" class="section">
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <h5 class="text-center">Students by Department</h5>
+          <canvas id="studentChart"></canvas>
+        </div>
+        <div class="col-md-6">
+          <h5 class="text-center">Teachers by Department</h5>
+          <canvas id="teacherChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Chart.js Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const studentData = {
+        labels: [{% for item in student_dept_counts %}'{{ item.department }}', {% endfor %}],
+      datasets: [{
+        label: 'Students',
+        data: [{% for item in student_dept_counts %}{{ item.count }}, {% endfor %}],
+      backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1']
+        }]
+      };
+
+    const teacherData = {
+      labels: [{% for item in teacher_dept_counts %}'{{ item.department }}', {% endfor %}],
+    datasets: [{
+      label: 'Teachers',
+      data: [{% for item in teacher_dept_counts %}{{ item.count }},{% endfor %}],
+    backgroundColor: ['#20c997', '#fd7e14', '#6610f2', '#e83e8c', '#17a2b8']
+  }]
+};
+    new Chart(document.getElementById('studentChart'), {
+      type: 'pie',
+      data: studentData
+    });
+
+    new Chart(document.getElementById('teacherChart'), {
+      type: 'doughnut',
+      data: teacherData
+    });
+    });
+
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

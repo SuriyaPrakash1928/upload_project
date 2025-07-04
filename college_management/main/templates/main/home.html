@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>College Management System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .main-wrapper {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-section {
+            flex: 1;
+            background: url("{% static 'images/cover.jpg' %}") no-repeat center center;
+            background-size: cover;
+        }
+
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 100px 60px 60px;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .btn-custom {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 8px;
+            margin: 10px;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-custom:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .description {
+            font-size: 1.2rem;
+            color: #555;
+            margin: 20px 0 40px;
+        }
+
+        .btn-custom {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 8px;
+            margin: 10px;
+        }
+
+        .toast {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .left-section,
+            .right-section {
+                flex: none;
+                height: 50vh;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <!-- Left Side -->
+        <div class="left-section"></div>
+
+        <!-- Right Side -->
+        <div class="right-section">
+            <!-- Modern Bootstrap Navbar -->
+            <!-- Modern Glassmorphism Navbar -->
+            <nav class="navbar navbar-expand-lg fixed-top shadow-lg bg-gradient bg-opacity-75"
+                style="backdrop-filter: blur(10px); background: rgba(52, 58, 64, 0.75);">
+                <div class="container justify-content-center">
+                    <a class="navbar-brand text-white fw-bold fs-3" href="#"
+                        style="text-shadow: 0 0 10px rgba(255,255,255,0.3);">
+                        <i class="bi bi-mortarboard-fill me-2"></i> College Management System
+                    </a>
+                </div>
+            </nav>
+
+
+            <!-- Content -->
+            <div class="content-area">
+                {% block content %}
+                <img src="{% static 'images/college-icon.jpg' %}" alt="College Logo" width="150"
+                    class="rounded-circle shadow mb-4 mx-auto d-block">
+                <div class="title">College Management System</div>
+                <div class="description">
+                    Welcome to the College Management System – a comprehensive platform designed to simplify and
+                    streamline academic administration. Whether you are a student or a teacher, this system offers an
+                    organized way to manage courses, attendance, and academic records.
+                </div>
+
+                <!-- Register Dropdown and Login Button -->
+                <div class="d-flex justify-content-center align-items-center flex-column">
+                    <select class="form-select w-50 mb-3" id="register-select">
+                        <option value="" selected>Select Role to Register</option>
+                        <option data-url="{% url 'register_teacher' %}">Register as Teacher</option>
+                        <option data-url="{% url 'register_student' %}">Register as Student</option>
+                    </select>
+
+                    <div>
+                        <button class="btn btn-primary btn-custom" onclick="redirectToRegister()">Register</button>
+                        <a href="{% url 'login' %}" class="btn btn-success btn-custom">Login</a>
+                    </div>
+                </div>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Messages -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+        <div id="registerToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Please select a role before continuing.
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Show Toasts on Load -->
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            toastElList.forEach(function (toastEl) {
+                new bootstrap.Toast(toastEl).show();
+            });
+        });
+    </script> -->
+
+    <!-- Register Redirect -->
+    {% block scripts %}
+    <script>
+        function redirectToRegister() {
+            const select = document.getElementById('register-select');
+            const selectedOption = select.options[select.selectedIndex];
+            const url = selectedOption.getAttribute('data-url');
+
+            if (url) {
+                window.location.href = url;
+            } else {
+                const toastEl = document.getElementById('registerToast');
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
+        }
+    </script>
+    {% endblock %}
+
+
+</body>
+
+</html>

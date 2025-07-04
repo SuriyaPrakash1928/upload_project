@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .student-row {
+            cursor: pointer;
+        }
+        #student-details,
+        #teacher-profile {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- 🔹 Navbar -->
+<!-- 🔹 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">Teacher Dashboard</a>
+        
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white fs-4" href="#" role="button" data-bs-toggle="dropdown"
+                   aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="showTeacherProfile()">View Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="{% url 'login' %}">Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<!-- 🔹 Main Container -->
+<div class="container py-4">
+
+    <!-- 🔸 Student List -->
+    <div id="student-list">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h4 class="mb-0">Students in Your Department</h4>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Contact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr class="student-row text-center" onclick="showDetails({{ student.id }})">
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.email }}</td>
+                            <td>{{ student.contact }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔸 Student Details -->
+    <div id="student-details">
+        <div class="mb-3">
+            <button class="btn btn-outline-secondary" onclick="goBack()">← Back</button>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">Attendance</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0 text-center">
+                    <thead class="table-light">
+                        <tr><th>Course</th><th>Date</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance %}
+                        <tr class="attendance-row" data-student="{{ record.student.id }}" style="display: none;">
+                            <td>{{ record.course.name }}</td>
+                            <td>{{ record.date }}</td>
+                            <td>
+                                {% if record.status %}
+                                    <span class="badge bg-success">Present</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Absent</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">Marks</div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0 text-center">
+                    <thead class="table-light">
+                        <tr><th>Course</th><th>Test</th><th>Date</th><th>Marks</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for mark in marks %}
+                        <tr class="marks-row" data-student="{{ mark.student.id }}" style="display: none;">
+                            <td>{{ mark.course.name }}</td>
+                            <td>{{ mark.test_name }}</td>
+                            <td>{{ mark.date }}</td>
+                            <td>{{ mark.marks }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔸 Teacher Profile -->
+    <div id="teacher-profile">
+        <div class="mb-3">
+            <button class="btn btn-outline-secondary" onclick="hideTeacherProfile()">← Back</button>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white fw-semibold">Teacher Profile</div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Name:</div>
+                    <div class="col-md-8">{{ teacher.name }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Email:</div>
+                    <div class="col-md-8">{{ teacher.user.email }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Contact:</div>
+                    <div class="col-md-8">{{ teacher.contact }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Date of Birth:</div>
+                    <div class="col-md-8">{{ teacher.dob }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Skills:</div>
+                    <div class="col-md-8">{{ teacher.skills }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Department:</div>
+                    <div class="col-md-8">{{ teacher.department }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-semibold">Approval Status:</div>
+                    <div class="col-md-8">
+                        {% if teacher.approved %}
+                            <span class="badge bg-success">Approved</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ✅ Bootstrap Toast for Messages -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+    {% for message in messages %}
+    <div class="toast align-items-center text-white
+        {% if message.tags == 'success' %}bg-success
+        {% elif message.tags == 'error' or message.tags == 'danger' %}bg-danger
+        {% elif message.tags == 'warning' %}bg-warning text-dark
+        {% else %}bg-info{% endif %}
+        border-0 show mb-2">
+        <div class="d-flex">
+            <div class="toast-body">{{ message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ✅ Scripts -->
+<script>
+    function showDetails(studentId) {
+        document.getElementById('student-list').style.display = 'none';
+        document.getElementById('student-details').style.display = 'block';
+        document.getElementById('teacher-profile').style.display = 'none';
+
+        // Show relevant rows
+        document.querySelectorAll('.attendance-row').forEach(row => {
+            row.style.display = row.dataset.student == studentId ? '' : 'none';
+        });
+        document.querySelectorAll('.marks-row').forEach(row => {
+            row.style.display = row.dataset.student == studentId ? '' : 'none';
+        });
+    }
+
+    function goBack() {
+        document.getElementById('student-details').style.display = 'none';
+        document.getElementById('student-list').style.display = 'block';
+    }
+
+    function showTeacherProfile() {
+        document.getElementById('student-list').style.display = 'none';
+        document.getElementById('student-details').style.display = 'none';
+        document.getElementById('teacher-profile').style.display = 'block';
+    }
+
+    function hideTeacherProfile() {
+        document.getElementById('teacher-profile').style.display = 'none';
+        document.getElementById('student-list').style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.toast').forEach(toast => {
+            new bootstrap.Toast(toast).show();
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: college-management
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn college_management.college_management.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: college_management.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: college-management.onrender.com

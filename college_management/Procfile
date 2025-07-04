@@ -1,0 +1,1 @@
+startCommand: gunicorn college_management.college_management.wsgi:application

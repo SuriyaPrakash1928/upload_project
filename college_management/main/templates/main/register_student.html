@@ -1,0 +1,105 @@
+{% extends 'main/home.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<div aria-live="polite" aria-atomic="true" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    {% for message in messages %}
+    <div class="toast align-items-center text-white 
+        {% if message.tags == 'success' %}bg-success
+        {% elif message.tags == 'error' or message.tags == 'danger' %}bg-danger
+        {% elif message.tags == 'warning' %}bg-warning text-dark
+        {% else %}bg-info{% endif %}
+        border-0 mb-2 show" role="alert" data-bs-animation="false">
+        <div class="d-flex">
+            <div class="toast-body">{{ message }}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<!-- Main Card Container -->
+<div class="container mt-5 mb-5">
+    <div class="card shadow-lg border-0 rounded-4 p-5 mx-auto animate__animated animate__fadeIn"
+        style="max-width: 650px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-primary fw-bold mb-0">Register as Student</h3>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Home
+            </a>
+        </div>
+
+        <!-- ✅ Student Registration Form -->
+        <form method="POST" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="name" class="form-label fw-semibold">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="dob" class="form-label fw-semibold">Date of Birth</label>
+                    <input type="date" class="form-control" id="dob" name="dob" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="contact" class="form-label fw-semibold">Contact Number</label>
+                    <input type="text" class="form-control" id="contact" name="contact" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="email" class="form-label fw-semibold">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+
+                <div class="col-md-12">
+                    <label for="department" class="form-label fw-semibold">Department</label>
+                    <input type="text" class="form-control" id="department" name="department" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="password" class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="confirm_password" class="form-label fw-semibold">Confirm Password</label>
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                </div>
+
+                <div class="col-md-12">
+                    <label for="courses" class="form-label fw-semibold">Select Courses
+                        <span class="badge bg-primary ms-1">multi</span>
+                    </label>
+                    <select name="courses" multiple class="form-control">
+                        {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="form-text">Hold <kbd>Ctrl</kbd> (or <kbd>Cmd</kbd> on Mac) to select multiple courses.
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-success btn-lg shadow-sm">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- ✅ Toast Auto Show Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.toast').forEach(toastEl => {
+            new bootstrap.Toast(toastEl).show();
+        });
+    });
+</script>
+{% endblock %}
